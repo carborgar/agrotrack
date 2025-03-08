@@ -127,15 +127,16 @@
         <div class="col-lg-3 mb-4">
             <form method="GET" class="mb-3">
                 <!-- Filtro por tipo de parcela -->
+
                 <div class="filter-collapse">
                     <div class="filter-header">
-                        <button class="btn filter-btn" type="button" data-bs-toggle="collapse"
-                                data-bs-target="#parcelasFilter"
-                                aria-expanded="true">
-                            <i class="fa fa-map me-2"></i> Parcelas
+                        <button class="btn filter-btn {% if not selected_fields %}collapsed{% endif %}"
+                                type="button" data-bs-toggle="collapse" data-bs-target="#parcelasFilter"
+                                aria-expanded="{% if selected_fields %}true{% else %}false{% endif %}">
+                            <i class="fa fa-map me-2"></i>Parcelas
                         </button>
                     </div>
-                    <div class="collapse show" id="parcelasFilter">
+                    <div class="collapse {% if selected_fields %}show{% endif %}" id="parcelasFilter">
                         <div class="filter-body">
                             {% for field in fields %}
                             <div class="form-check mb-2">
@@ -148,15 +149,17 @@
                         </div>
                     </div>
                 </div>
+
                 <!-- Filtro por tipo de tratamiento -->
                 <div class="filter-collapse">
                     <div class="filter-header">
-                        <button class="btn filter-btn" type="button" data-bs-toggle="collapse"
-                                data-bs-target="#tratamientosFilter" aria-expanded="true">
+                        <button class="btn filter-btn {% if not selected_types %}collapsed{% endif %}" type="button"
+                                data-bs-toggle="collapse" data-bs-target="#tratamientosFilter"
+                                aria-expanded="{% if selected_types %}true{% else %}false{% endif %}">
                             <i class="fa fa-droplet me-2"></i>Tipos de Tratamiento
                         </button>
                     </div>
-                    <div class="collapse show" id="tratamientosFilter">
+                    <div class="collapse {% if selected_types %}show{% endif %}" id="tratamientosFilter">
                         <div class="filter-body">
                             {% for key, value in type_choices %}
                             <div class="form-check mb-2">
@@ -172,12 +175,13 @@
                 <!-- Filtro por estado -->
                 <div class="filter-collapse">
                     <div class="filter-header">
-                        <button class="btn filter-btn" type="button" data-bs-toggle="collapse"
-                                data-bs-target="#estadosFilter" aria-expanded="true">
+                        <button class="btn filter-btn {% if not selected_statuses %}collapsed{% endif %}" type="button"
+                                data-bs-toggle="collapse" data-bs-target="#estadosFilter"
+                                aria-expanded="{% if selected_statuses %}true{% else %}false{% endif %}">
                             <i class="fa fa-circle-half-stroke me-2"></i>Estados
                         </button>
                     </div>
-                    <div class="collapse show" id="estadosFilter">
+                    <div class="collapse {% if selected_statuses %}show{% endif %}" id="estadosFilter">
                         <div class="filter-body">
                             {% for key, value in status_choices %}
                             <div class="form-check mb-2">
@@ -193,13 +197,13 @@
                 <!-- Filtro por producto -->
                 <div class="filter-collapse">
                     <div class="filter-header">
-                        <button class="btn filter-btn" type="button" data-bs-toggle="collapse"
-                                data-bs-target="#productosFilter"
-                                aria-expanded="true">
+                        <button class="btn filter-btn {% if not selected_products %}collapsed{% endif %}" type="button"
+                                data-bs-toggle="collapse" data-bs-target="#productosFilter"
+                                aria-expanded="{% if selected_products %}true{% else %}false{% endif %}">
                             <i class="fa fa-box me-2"></i>Productos
                         </button>
                     </div>
-                    <div class="collapse show" id="productosFilter">
+                    <div class="collapse {% if selected_products %}show{% endif %}" id="productosFilter">
                         <div class="filter-body">
                             {% for product in products %}
                             <div class="form-check mb-2">
@@ -216,12 +220,13 @@
                 <!-- Filtro por fecha -->
                 <div class="filter-collapse">
                     <div class="filter-header">
-                        <button class="btn filter-btn" type="button" data-bs-toggle="collapse"
-                                data-bs-target="#fechasFilter" aria-expanded="true">
+                        <button class="btn filter-btn {% if not date_from and not date_to %}collapsed{% endif %}"
+                                type="button" data-bs-toggle="collapse" data-bs-target="#fechasFilter"
+                                {% if not date_from and not date_to %}collapsed{% endif %}>
                             <i class="fa fa-calendar me-2"></i>Rango de Fechas
                         </button>
                     </div>
-                    <div class="collapse show" id="fechasFilter">
+                    <div class="collapse {% if date_from or date_to %}show{% endif %}" id="fechasFilter">
                         <div class="filter-body">
                             <div class="date-filter mb-3">
                                 <label for="date_from" class="form-label">Desde:</label>
@@ -302,4 +307,5 @@
 
     </div>
 </div>
+
 {% endblock %}
