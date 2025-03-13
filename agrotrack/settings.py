@@ -12,17 +12,22 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 import os
 from pathlib import Path
 
+from dotenv import load_dotenv
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+env_path = load_dotenv(os.path.join(BASE_DIR, '.env'))
+load_dotenv(env_path)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-!w7x8x(t%m-*wq_c5h3azq&!r(xd71=(o^ivd!5r%1+t*$35n3'
+SECRET_KEY = os.environ["SECRET_KEY"]
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DJANGO_DEBUG', '') != 'False'
 
 ALLOWED_HOSTS = []
 
@@ -73,12 +78,13 @@ WSGI_APPLICATION = 'agrotrack.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
+import dj_database_url
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(
+        default='sqlite:////' + (BASE_DIR / 'db.sqlite3').__str__(),
+        conn_max_age=600
+    )
 }
 
 # Password validation
@@ -106,7 +112,7 @@ LANGUAGE_CODE = 'es-ES'
 
 TIME_ZONE = 'UTC'
 
-USE_L10N=True
+USE_L10N = True
 USE_I18N = True
 DATE_INPUT_FORMATS = ('%d/%m/%Y',)
 DATE_FORMAT = 'd/m/Y'
