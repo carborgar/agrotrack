@@ -17,17 +17,19 @@ class Field(models.Model):
 class Machine(models.Model):
     name = models.CharField(max_length=100)
     type = models.CharField(max_length=50)  # Ej. Pulverizador
-    capacity = models.FloatField()  # Capacidad en litros
+    capacity = models.IntegerField()  # Capacidad en litros
+
+    def __str__(self):
+        return f"{self.name}"
 
 
 class Product(models.Model):
     DOSE_TYPE_CHOICES = [
-        ('kg_per_2000l', 'kg/2000L agua'),
         ('kg_per_1000l', 'kg/1000L agua'),
-        ('l_per_2000l', 'L/2000L agua'),
         ('l_per_1000l', 'L/1000L agua'),
         ('kg_per_ha', 'kg/ha'),
         ('l_per_ha', 'L/ha'),
+        ('pct', '%'),
     ]
     name = models.CharField(max_length=100)
     type = models.CharField(max_length=50, choices=[('fertilizer', 'Fertilizante'), ('pesticide', 'Fitosanitario')])
@@ -36,6 +38,10 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
+
+    def dose_type_name(self):
+        # Devuelve el valor legible para el template, usando el diccionario de opciones
+        return dict(self.DOSE_TYPE_CHOICES).get(self.dose_type, 'Tipo de dosis desconocido')
 
 
 class Task(models.Model):
@@ -61,6 +67,7 @@ class Task(models.Model):
     field = models.ForeignKey('farm.Field', on_delete=models.CASCADE)
     machine = models.ForeignKey('farm.Machine', on_delete=models.SET_NULL, null=True, blank=True)
     products = models.ManyToManyField('farm.Product', through='TaskProduct')
+    water_per_ha = models.FloatField(help_text="Litros de agua por hectárea", default=1000)
 
     def __str__(self):
         return f"{self.name} - {self.date}"
@@ -114,13 +121,61 @@ class TaskProduct(models.Model):
     task = models.ForeignKey("Task", on_delete=models.CASCADE)
     product = models.ForeignKey("Product", on_delete=models.CASCADE)
     dose = models.FloatField()
-    dose_type = models.CharField(max_length=20, choices=Product.DOSE_TYPE_CHOICES)  # Agregar esto
+    dose_type = models.CharField(max_length=20, choices=Product.DOSE_TYPE_CHOICES)
+    total_dose = models.FloatField()
+    total_dose_unit = models.CharField(max_length=10, choices=[('L', 'Litros'), ('kg', 'Kilogramos')])
 
     class Meta:
         unique_together = ('task', 'product')  # Evita duplicados
 
     def __str__(self):
         return f"{self.product.name} en {self.task} - {self.dose}"
+
+    def calculate_total_dose(self):
+        """Calcula la dosis total basada en el tipo de dosis y los parámetros de la tarea"""
+        # Primero, determinamos la unidad de medida
+        self.dose_type = self.product.dose_type
+        if self.dose_type in ['kg_per_1000l', 'kg_per_ha']:
+            self.total_dose_unit = 'kg'
+        else:
+            self.total_dose_unit = 'L'
+
+        # Obtenemos los datos necesarios
+        field_area = self.task.field.area
+        water_per_ha = self.task.water_per_ha
+
+        # Calculamos la dosis total según el tipo
+        if self.dose_type in ['kg_per_1000l', 'l_per_1000l']:
+            total_water = water_per_ha * field_area  # Litros totales
+            self.total_dose = (self.dose * total_water) / 1000
+
+        elif self.dose_type in ['kg_per_ha', 'l_per_ha']:
+            self.total_dose = self.dose * field_area
+
+        elif self.dose_type == 'pct':
+            total_water = water_per_ha * field_area
+            self.total_dose = (self.dose / 100) * total_water
+            self.total_dose_unit = 'L'  # Siempre es litros para porcentaje
+
+    def save(self, *args, **kwargs):
+        # Calculamos la dosis total antes de guardar
+        self.calculate_total_dose()
+        super().save(*args, **kwargs)
+
+
+# class TaskProduct(models.Model):
+#     task = models.ForeignKey("Task", on_delete=models.CASCADE)
+#     product = models.ForeignKey("Product", on_delete=models.CASCADE)
+#     dose = models.FloatField()
+#     dose_type = models.CharField(max_length=20, choices=Product.DOSE_TYPE_CHOICES)
+#     total_dose = models.FloatField()
+#     total_dose_unit = models.CharField(max_length=10, choices=[('L', 'Litros'), ('kg', 'Kilogramos')])
+#
+#     class Meta:
+#         unique_together = ('task', 'product')  # Evita duplicados
+#
+#     def __str__(self):
+#         return f"{self.product.name} en {self.task} - {self.dose}"
 
 
 class Harvest(models.Model):

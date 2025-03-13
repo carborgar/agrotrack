@@ -24,11 +24,7 @@ SECRET_KEY = 'django-insecure-!w7x8x(t%m-*wq_c5h3azq&!r(xd71=(o^ivd!5r%1+t*$35n3
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [
-    'localhost',
-    '3ee0-85-55-239-173.ngrok-free.app',
-
-]
+ALLOWED_HOSTS = []
 
 # Application definition
 
@@ -42,6 +38,7 @@ INSTALLED_APPS = [
     'farm',
     'django_filters',
     'django_bootstrap5',
+    'widget_tweaks',
 ]
 
 MIDDLEWARE = [
@@ -105,10 +102,11 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
-LANGUAGE_CODE = 'es-es'
+LANGUAGE_CODE = 'es-ES'
 
 TIME_ZONE = 'UTC'
 
+USE_L10N=True
 USE_I18N = True
 DATE_INPUT_FORMATS = ('%d/%m/%Y',)
 DATE_FORMAT = 'd/m/Y'

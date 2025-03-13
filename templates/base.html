@@ -45,25 +45,26 @@
 
     </style>
 
-    {% block extra_head %}
-    {% endblock %}
+    {% block extra_head %} {% endblock %}
 </head>
-<body>
+<body style="background-color:#ECECEC;">
 
 {% include "menu.html" %}
 
-<div class="container">
+<div class="container py-4 card">
     <section id="messages">
         {% bootstrap_messages %}
     </section>
 
-    {% block content %}
-    {% endblock %}
+    {% block content %} {% endblock %}
+
 </div>
 
 <!-- Cargar Scripts de Bootstrap -->
 <script crossorigin="anonymous"
         integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3"
         src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+
+{% block extra_js %} {% endblock %}
 </body>
 </html>
